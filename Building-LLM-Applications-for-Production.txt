@@ -1,0 +1,195 @@
+Building LLM Applications for Production
+
+  What is RAG?
+
+RAG stands for Retrieval Augmented Generation
+
+The goal of RAG is to take information and pass it to an LLM so it can generate
+outputs based on that information.
+
+Steps to make a RAG:
+
+WHY RAG?
+
+The main goal of RAG is to improve the generation outputs of LLMs.
+ 1. Prevent hallucinations - LLms are incredibly good at generating good
+    "looking" text however, this text doesn't mean it is factual.
+ 2. Work with custom data- Many base LLMs are trained with internet-scale data.
+    This means they have a fairly good understanding of language in general.
+
+Process
+ 1. Open a PDF document
+ 2. Format the text of the PDF textbook ready for an embedding model.
+ 3. Embed all of the chunks of text in textbook and turn them into numerical
+    representation (embedding) which can store for later.
+ 4. Build a retrieval system that uses vector search to find relevant chunk of
+    text based on query.
+ 5. Create a prompt that incorporates the retrieved pieces of text.
+ 6. Generate an answer to a query based on the passages of the textbook with an
+    LLM.
+
+DOCUMENT/TEXT PROCESSING AND EMBEDDING CREATION
+ 1. Import PDF document.
+ 2. Process text for embedding
+ 3. Save embedding to file for later.
+
+
+
+
+
+TOKENS
+
+why should we care about token count?
+
+
+
+Token count is important to think about because"
+ 1. Embedding models don't deal with infinite tokens
+ 2. LLMs don't deal with infinite token
+
+therefore it is important to think about embedding models to chose.
+
+
+
+Further text processing (splitting pages into sentences)
+
+We can do this with a NLP library such as spaCy and nltk
+
+
+
+
+
+CHUNKING
+
+The concept of splitting larger pieces of text into smaller ones is often
+referred to as text splitting or chunking.
+
+there is no 100% correct way to do this.
+
+we will keep it simple and split into groups of 10 sentences.
+
+There are frameworks such as langChain which can help with this , however, we
+will stick with Python for now.
+
+We do this :
+
+So that our texts are easier to filter (smaller groups of text can be easier to
+inspect that large passage of text.
+
+So that our text chunks can fit into our embedding model context window (e.g.
+384 tokens as a limit)
+
+So our contexts passed to an LLM can be more specific and focused.
+
+
+
+Splitting each chunk into it's own item
+
+we would like to embed each chunk of sentences into it's own numerical
+representation.
+
+that will give us a good level of granularity, meaning we can dive specifically
+into the text sample that was used in our model.
+
+
+
+
+
+
+
+EMBEDDING OUR TEXT CHUNKS
+
+Embedding are a broad but powerful concept.
+
+while humans understand text, machines understand numbers.
+
+what we do is turn our chunks into numbers, specifically embedding.
+
+The best part about embedding is that they ate a "learned" representation.
+
+for a great resource on learning embedding
+https://vickiboykis.com/what_are_embeddings/index.html
+[https://vickiboykis.com/what_are_embeddings/index.html]
+
+open-source embedding models can be found here
+https://huggingface.co/spaces/mteb/leaderboard
+[https://huggingface.co/spaces/mteb/leaderboard]
+
+
+
+VECTOR DATABASE
+
+If your embedding database is really large (e.g. over 100k-1M samples) you might
+want to look into using a vector database for storage:
+https://en.wikipedia.org/wiki/Vector_database
+[https://en.wikipedia.org/wiki/Vector_database]
+
+
+
+RAG - Search And Answer
+
+RAG goal: Retrieve relevant passages based on a query and use those passages to
+augment an input to an LLM so it can generate an output based on those relevant
+passages.
+
+Similarity Search
+
+Embedding can be for almost any type of data.
+
+For example, you can turn images into embedding, sound into embedding, text into
+embedding, etc...
+
+Comparing embedding is known as similarity search, vector search, semantic
+search.
+
+In our case, we want to query our nutrition textbook passages based on semantics
+or *vibe*.
+
+So if I search for "macro nutrients functions" I should get relevant passages to
+that text but may not contain exactly the words "macro nutrient functions".
+
+Whereas with keyword search, if I search "apple" I get back passages with
+specifically "apple".
+
+
+
+
+
+Embedding Model Ready
+
+Let's create a small semantic search pipeline
+
+In essence, we want to search for a query(e.g. "macro nutrient functions") and
+get back relevant passages from our textbook.
+
+
+
+We can do so with the following steps:
+ 1. Define a query string.
+ 2. Turn the query string into an embedding
+ 3. Perform a dot product or cosine similarity function between the text
+    embedding and the query embedding.
+ 4. Sort the results from 3 in descending order.
+
+We can see that searching over embeddings is very fast even if we do exhaustive
+search.
+But if you had 10M+ embeddings, you likely want to create an index.
+An index is like letters in the dictionary.
+
+An index helps to narrow it down.
+
+A popularly used indexing library for vector search is Faiss.
+
+https://github.com/facebookresearch/faiss
+
+one technique that the library provides is approximate nearest neighbor search
+
+https://en.wikipedia.org/wiki/Nearest_neighbor_search
+
+
+
+NOTE: We could potentially improve the order of these results with a re ranking
+model. A model that has been trained specifically to take search results (e.g.
+the top 25 semantic results) and rank them in order from most likely top -1 to
+least likely.
+
